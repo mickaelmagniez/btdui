@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=btdui
+GenericName=Disk Usage Analyzer
+Comment=Sampling disk usage profiler for btrfs
+Exec=btdui
+Icon=btdui
+Terminal=false
+Categories=System;Filesystem;Utility;
+Keywords=btrfs;disk;usage;space;snapshot;

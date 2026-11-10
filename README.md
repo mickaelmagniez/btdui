@@ -52,11 +52,14 @@ closes.
 
 ## Install
 
-Download `btdui-*-x86_64-linux.tar.gz` from the
-[releases](https://github.com/mickaelmagniez/btdui/releases). It is a single
-binary that needs glibc 2.35 or newer, plus `libxcb` and `libxkbcommon`,
-which every Linux desktop has. Or build it from source (Rust 1.88+, and
-`clang` for the btrfs bindings):
+From the [releases](https://github.com/mickaelmagniez/btdui/releases), take either:
+
+- `btdui-*-x86_64.AppImage`: make it executable and run it (needs FUSE, like
+  any AppImage; the root sampler runs from the same AppImage file);
+- `btdui-*-x86_64-linux.tar.gz`: a single binary that needs glibc 2.35 or
+  newer, plus `libxcb` and `libxkbcommon`, which every Linux desktop has.
+
+Or build it from source (Rust 1.88+, and `clang` for the btrfs bindings):
 
 ```sh
 cargo build --release
