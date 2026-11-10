@@ -67,10 +67,19 @@ jobs:
           export LINUXDEPLOY_OUTPUT_VERSION="$version"
           curl -fsSLo linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy
+          # Keyboard and X libraries must match the host's own data files
+          # (an old bundled libxkbcommon cannot parse newer Compose files),
+          # and every desktop has them: do not bundle them.
           ./linuxdeploy --appdir AppDir \
             --executable "${{ steps.package.outputs.name }}/btdui" \
             --desktop-file assets/btdui.desktop \
             --icon-file assets/btdui.svg \
+            --exclude-library 'libxkbcommon*' \
+            --exclude-library 'libxcb*' \
+            --exclude-library 'libXau*' \
+            --exclude-library 'libXdmcp*' \
+            --exclude-library 'libbsd*' \
+            --exclude-library 'libmd*' \
             --output appimage
           file="btdui-${version}-x86_64.AppImage"
           [[ -f "$file" ]] || mv btdui-*.AppImage "$file"
