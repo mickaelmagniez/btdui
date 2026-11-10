@@ -85,28 +85,37 @@ fn report(path: PathBuf, secs: u64) -> ExitCode {
         eprintln!("error: {msg}");
         return ExitCode::FAILURE;
     }
-    println!(
+    // A closed pipe (e.g. `| head`) just ends the report early.
+    let _ = print_report(&m, &mut std::io::stdout().lock());
+    ExitCode::SUCCESS
+}
+
+fn print_report(m: &model::Model, out: &mut impl std::io::Write) -> std::io::Result<()> {
+    writeln!(
+        out,
         "{} samples, total {}, resolution {}",
         m.samples,
         ui::format_size(m.total_bytes() as f64),
         ui::format_size(m.total_bytes() as f64 / m.samples.max(1) as f64)
-    );
-    println!(
+    )?;
+    writeln!(
+        out,
         "{:>11} {:>11} {:>11}  path",
         "represented", "exclusive", "shared"
-    );
+    )?;
     let mut stack = vec![(model::ROOT, 0usize)];
     while let Some((id, depth)) = stack.pop() {
         let n = &m.nodes[id as usize];
         if id != model::ROOT {
-            println!(
+            writeln!(
+                out,
                 "{:>11} {:>11} {:>11}  {}{}",
                 ui::format_size(m.bytes(n.represented)),
                 ui::format_size(m.bytes(n.exclusive)),
                 ui::format_size(m.bytes(n.shared)),
                 "  ".repeat(depth - 1),
                 n.name
-            );
+            )?;
         }
         if depth < 2 {
             let mut kids: Vec<_> = n.children.values().copied().collect();
@@ -115,7 +124,7 @@ fn report(path: PathBuf, secs: u64) -> ExitCode {
             stack.extend(kids.into_iter().rev().map(|k| (k, depth + 1)));
         }
     }
-    ExitCode::SUCCESS
+    Ok(())
 }
 
 fn run_gui(path: Option<PathBuf>, view: ui::View) {
