@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    # Oldest supported runner: the binary then works with glibc >= 2.35.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config clang libclang-dev \
+            libxcb1-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libx11-xcb-dev \
+            libwayland-dev libfontconfig-dev libfreetype-dev libvulkan-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Package
+        id: package
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          [[ "$GITHUB_REF_TYPE" == tag ]] || version="${GITHUB_SHA::7}"
+          name="btdui-${version}-x86_64-linux"
+          mkdir "$name"
+          cp target/release/btdui README.md "$name/"
+          strip "$name/btdui"
+          tar czf "$name.tar.gz" "$name"
+          sha256sum "$name.tar.gz" > "$name.tar.gz.sha256"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.name }}
+          path: |
+            ${{ steps.package.outputs.name }}.tar.gz
+            ${{ steps.package.outputs.name }}.tar.gz.sha256
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            ${{ steps.package.outputs.name }}.tar.gz
+            ${{ steps.package.outputs.name }}.tar.gz.sha256
