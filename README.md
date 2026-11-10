@@ -92,3 +92,7 @@ Keys: `↑↓` select, `⏎`/`→` open, `⌫`/`←` go up, `v` switch view,
   up as `<UNLINKED>`.
 - `libc` is pinned below 0.2.190, because `xattr` 0.2 (pulled in by gpui) does
   not build with newer versions.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
