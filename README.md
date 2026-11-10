@@ -7,14 +7,25 @@ It shows where the space of a btrfs filesystem actually goes, including what
 `du` cannot see: snapshots sharing data, DUP/RAID copies, metadata, slack in
 block groups, unreachable extent parts, and unallocated device space.
 
+![Rings view](docs/rings.png)
+
 ## Views
 
 - **Rings**: concentric sunburst (like GNOME Disk Usage Analyzer and Filelight).
   Click a segment to zoom in. Click the center or right-click to go back up.
 - **Treemap**: nested squarified rectangles (like QDirStat). Click a directory
   to zoom in. Right-click to go back up.
+
+  ![Treemap view](docs/treemap.png)
+
 - **List**: sortable table with represented, distributed, exclusive and shared
   sizes, plus a stacked bar for each entry.
+
+  ![List view](docs/list.png)
+
+The progress bar at the top shows how precise the sizes in the current
+directory are, and estimates how long it takes to reach the goal. Click it
+to change the goal (±5 %, ±1 %, ±0.5 %, ±0.1 %).
 
 The side panel shows the hovered or selected entry: each size with its
 statistical margin, an explanation of special `<...>` nodes, and the other

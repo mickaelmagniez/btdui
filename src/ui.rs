@@ -977,6 +977,7 @@ impl BtduApp {
                 };
                 div()
                     .id(ix)
+                    .w_full()
                     .h(px(ROW_HEIGHT))
                     .flex()
                     .items_center()
@@ -1320,16 +1321,17 @@ impl Render for BtduApp {
             )
             .track_scroll(self.scroll.clone())
             .flex_1()
+            .w_full()
             .into_any_element()
         };
 
         let columns = (self.view == View::List).then(|| self.render_column_header(cx));
-        root.child(header).child(breadcrumb).children(columns).child(
+        root.child(header).child(breadcrumb).child(
             div()
                 .flex_1()
                 .flex()
                 .min_h_0()
-                .child(div().flex_1().flex().flex_col().min_h_0().child(list))
+                .child(div().flex_1().flex().flex_col().min_h_0().children(columns).child(list))
                 .child(details),
         )
         .child(
